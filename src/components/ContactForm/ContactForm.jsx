@@ -3,13 +3,12 @@ import * as Yup from "yup";
 import { nanoid } from "nanoid";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import { useId } from "react";
-
-const initialValues = {
-  username: "",
-  phoneNumber: "",
-};
+import { useDispatch } from "react-redux";
+import { addContact } from "../../redux/contactsSlice";
 
 const onlyLetters = /^[A-Za-zА-Яа-яЄєІіЇїҐґ-\s]+$/;
+
+var onlyNumbers = /^\d+$/;
 
 const applySchema = Yup.object().shape({
   username: Yup.string()
@@ -20,10 +19,18 @@ const applySchema = Yup.object().shape({
   phoneNumber: Yup.string()
     .required("Це поле обов'язкове!")
     .min(3, "Мінімум 3 символи!")
-    .max(50, "Максимум 20 символів!"),
+    .max(50, "Максимум 20 символів!")
+    .matches(onlyNumbers, "Тільки цифри!"),
 });
 
-const ContactForm = ({ setContacts }) => {
+const ContactForm = () => {
+  const dispatch = useDispatch();
+
+  const initialValues = {
+    username: "",
+    phoneNumber: "",
+  };
+
   const usernameFieldId = useId();
   const phoneNumberFieldId = useId();
   const handleSubmit = (values, actions) => {
@@ -33,7 +40,7 @@ const ContactForm = ({ setContacts }) => {
       number: values.phoneNumber,
     };
 
-    setContacts((prev) => [...prev, newContact]);
+    dispatch(addContact(newContact));
     actions.resetForm();
   };
 
